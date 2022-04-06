@@ -9,8 +9,15 @@ namespace windows_desktop_grabber
 		public const uint LVM_FIRST = 0x1000;
 		public const uint LVM_GETITEMCOUNT = LVM_FIRST + 4;
 		public const uint LVM_GETITEMW = LVM_FIRST + 75;
+		public const uint LVM_GETITEMRECT = LVM_FIRST + 14;
 		public const uint LVM_GETITEMPOSITION = LVM_FIRST + 16;
 		public const int LVIF_TEXT = 0x0001;
+
+		[StructLayout(LayoutKind.Sequential)]
+		public struct RECT
+		{
+			public int Left, Top, Right, Bottom;
+		}
 
 		[StructLayout(LayoutKind.Sequential)]
 		public struct LVITEM

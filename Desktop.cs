@@ -77,6 +77,20 @@ namespace windows_desktop_grabber
 					string vText = Encoding.Unicode.GetString(vBuffer, 0, (int)vNumberOfBytesRead);
 					string name = vText.Substring(0, vText.IndexOf('\0'));
 
+					// Get icon width and height
+					// TODO: try to use this: https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-ifolderview2?redirectedfrom=MSDN
+					Win32.SendMessage(_desktopHandle, Win32.LVM_GETITEMRECT, i, vPointer.ToInt32());
+					Win32.RECT[] vRect = new Win32.RECT[1];
+					Win32.ReadProcessMemory(
+						vProcess, vPointer,
+						Marshal.UnsafeAddrOfPinnedArrayElement(vRect, 0),
+						Marshal.SizeOf(typeof(Win32.RECT)), ref vNumberOfBytesRead
+					);
+
+					int width = vRect[0].Right - vRect[0].Left;
+					int height = vRect[0].Bottom - vRect[0].Top;
+					string size = width + "," + height;
+
 					// Get icon position
 					Win32.SendMessage(_desktopHandle, Win32.LVM_GETITEMPOSITION, i, vPointer.ToInt32());
 					Point[] vPoint = new Point[1];
@@ -86,7 +100,7 @@ namespace windows_desktop_grabber
 						Marshal.SizeOf(typeof(Point)), ref vNumberOfBytesRead
 					);
 
-					icons.AddLast(new FullDesktopIcon(name, vPoint[0].X, vPoint[0].Y));
+					icons.AddLast(new FullDesktopIcon(name, vPoint[0].X, vPoint[0].Y, size));
 				}
 
 				return icons.ToArray();
