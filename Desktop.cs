@@ -4,6 +4,7 @@ using System.Linq;
 using System.Drawing;
 using System.Text;
 using System.Runtime.InteropServices;
+using Microsoft.Win32;
 
 namespace windows_desktop_grabber
 {
@@ -21,6 +22,41 @@ namespace windows_desktop_grabber
 			return (int)Win32.SendMessage(_desktopHandle, Win32.LVM_GETITEMCOUNT, 0, 0);
 		}
 
+		private static byte[] SliceByteArray(byte[] input, int index)
+		{
+			byte[] output = new byte[input.Length-index];
+			Array.Copy(input, index, output, 0, output.Length);
+			return output;
+		}
+
+		// Wallpapers
+		private object GetDesktopValue(string propertyName)
+		{
+			return Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop").GetValue(propertyName);
+		}
+
+		public string GetWallpaperPath()
+		{
+			return GetDesktopValue("WallPaper") as string;
+		}
+
+		public string GetWallpaperTile()
+		{
+			return GetDesktopValue("TileWallpaper") as string;
+		}
+
+		public string GetWallpaperStyle()
+		{
+			return GetDesktopValue("WallpaperStyle") as string;
+		}
+
+		// Runs when wallpaper image is empty and returns an RGB color
+		public string GetWallpaperBackgroundColor()
+		{
+			return Registry.CurrentUser.OpenSubKey(@"Control Panel\Colors").GetValue("Background") as string;
+		}
+
+		// Icons
 		public FullDesktopIcon[] GetIconsPositions()
 		{
 			uint desktopProcessId;

@@ -10,6 +10,9 @@ namespace windows_desktop_grabber
 		[XmlElement("platform")]
 		public string Platform;
 
+		[XmlElement("wallpaper")]
+		public WallpaperStruct Wallpaper;
+
 		[XmlArray("icons")]
 		[XmlArrayItem("icon")]
 		public FullDesktopIcon[] Icons;
