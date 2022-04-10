@@ -14,6 +14,7 @@ namespace windows_desktop_grabber
 
 			// Get wallpaper data
 			string wallpaperPath = desktop.GetWallpaperPath();
+			string backgroundColor = desktop.GetWallpaperBackgroundColor();
 			WallpaperStruct wallpaper;
 
 			// If wallpaper is the image
@@ -21,12 +22,10 @@ namespace windows_desktop_grabber
 			{
 				string wallpaperIsTiled = desktop.GetWallpaperTile();
 				string wallpaperStyle = desktop.GetWallpaperStyle();
-				wallpaper = new WallpaperStruct(wallpaperPath, wallpaperIsTiled, wallpaperStyle);
+				wallpaper = new WallpaperStruct(wallpaperPath, backgroundColor, wallpaperIsTiled, wallpaperStyle);
 			}
-			// If wallpaper is a solid color
 			else
 			{
-				string backgroundColor = desktop.GetWallpaperBackgroundColor();
 				wallpaper = new WallpaperStruct(backgroundColor);
 			}
 

@@ -20,6 +20,7 @@ namespace windows_desktop_grabber
 			Reference: https://docs.microsoft.com/en-us/windows/win32/controls/themesfileformat-overview?redirectedfrom=MSDN#control-paneldesktop-section
 
 			- path
+			- rgb
 			- tile:
 				- 0: not tiled
 				- 1: tiled
@@ -32,6 +33,14 @@ namespace windows_desktop_grabber
 		public WallpaperStruct(string path, string tile, string style) : this()
 		{
 			this.Path = path;
+			this.Tile = tile;
+			this.Style = style;
+		}
+
+		public WallpaperStruct(string path, string rgb, string tile, string style) : this()
+		{
+			this.Path = path;
+			this.RGB = rgb;
 			this.Tile = tile;
 			this.Style = style;
 		}

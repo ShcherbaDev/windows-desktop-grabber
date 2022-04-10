@@ -22,13 +22,6 @@ namespace windows_desktop_grabber
 			return (int)Win32.SendMessage(_desktopHandle, Win32.LVM_GETITEMCOUNT, 0, 0);
 		}
 
-		private static byte[] SliceByteArray(byte[] input, int index)
-		{
-			byte[] output = new byte[input.Length-index];
-			Array.Copy(input, index, output, 0, output.Length);
-			return output;
-		}
-
 		// Wallpapers
 		private object GetDesktopValue(string propertyName)
 		{

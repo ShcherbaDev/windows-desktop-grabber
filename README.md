@@ -15,16 +15,14 @@ Application returns a XML document in the console with the following structure:
 - root
   - platform - current platform (hardcoded to "windows")
   - wallpaper - desktop wallpaper and contains the following attributes:
-    - when background is an image than returns these attributes:
-      - path - absolute path to the wallpaper image
-      - tile - should wallpaper be tiled or not (1 or 0)
-      - style - position parameter which can contain the following values:
-        - 0 - center
-        - 2 - stretched fill the screen
-        - 6 - resized to fit the screen while maintaining the aspect ratio (Windows 7 and later)
-        - 10 - resized and cropped to fill the screen while maintaining the aspect ratio (Windows 7 and later)
-    - when background is a solid color then returns these attributes:
-      - rgb - RGB color
+    - path - absolute path to the wallpaper image (is present)
+    - rgb - RGB background when image is not present or is not fitting on screen
+    - tile - should wallpaper be tiled or not (1 or 0)
+    - style - position parameter which can contain the following values:
+      - 0 - center
+      - 2 - stretched fill the screen
+      - 6 - resized to fit the screen while maintaining the aspect ratio (Windows 7 and later)
+      - 10 - resized and cropped to fill the screen while maintaining the aspect ratio (Windows 7 and later)
   - icons - array of icon elements
     - icon - text content is the desktop icon's name and contains the following attributes:
       - x - integer with horizontal position of the icon
