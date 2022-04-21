@@ -1,4 +1,4 @@
-using System.Xml;
+﻿using System.Xml;
 using System.Xml.Serialization;
 using System.IO;
 
@@ -13,9 +13,12 @@ namespace windows_desktop_grabber
 		[XmlElement("wallpaper")]
 		public WallpaperStruct Wallpaper;
 
+		[XmlElement("icon-images-path")]
+		public string IconImagesPath;
+
 		[XmlArray("icons")]
 		[XmlArrayItem("icon")]
-		public FullDesktopIcon[] Icons;
+		public DesktopIcon[] Icons;
 	}
 
 	internal static class XmlManager

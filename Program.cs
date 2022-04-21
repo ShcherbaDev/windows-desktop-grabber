@@ -1,16 +1,78 @@
 ﻿using System;
+using System.IO;
+using System.Drawing;
+
+using static WindowsAPI.Shell32;
 
 namespace windows_desktop_grabber
 {
-    class Program
-    {
-        static void Main(string[] args)
-        {
+	class Program
+	{
+		static void Main(string[] args)
+		{
 			Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+			const int ICON_SIZE = 256;
+			const string ICON_IMAGES_PATH = "./icons";
+
+			// Create folder for icon images
+			string iconImagesDirectoryPath = Path.GetFullPath(
+				Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ICON_IMAGES_PATH)
+			);
+			if (!Directory.Exists(iconImagesDirectoryPath))
+			{
+				Directory.CreateDirectory(iconImagesDirectoryPath);
+			}
+			else
+			{
+				foreach (FileInfo file in new DirectoryInfo(iconImagesDirectoryPath).GetFiles())
+				{
+					file.IsReadOnly = false;
+					file.Delete();
+				}
+			}
 
 			// Get desktop data
 			Desktop desktop = new Desktop();
-			FullDesktopIcon[] icons = desktop.GetIconsPositions();
+			DesktopIcon[] icons = desktop.GetIconsPositions();
+
+			// Save icon actual images
+			foreach (var icon in icons)
+			{
+				// TODO: add support for system icons
+				if ((IconTypes)icon.Type == IconTypes.System)
+				{
+					#if DEBUG
+					Console.WriteLine("File {0} is not supported yet", icon.Name);
+					#endif
+
+					break;
+				}
+
+				string iconName = icon.Name;
+
+				// Shortcut files requires ".lnk" ending in filename
+				if ((IconTypes)icon.Type == IconTypes.Shortcut)
+				{
+					iconName += ".lnk";
+				}
+
+				try
+				{
+					Bitmap iconBitmap = ThumbnailProvider.GetThumbnail(
+						Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), iconName),
+						ICON_SIZE, ICON_SIZE,
+						ThumbnailOptions.None
+					);
+					ThumbnailProvider.SaveBitmap(iconBitmap, Path.Combine(iconImagesDirectoryPath, iconName));
+					ThumbnailProvider.RemoveBitmap(iconBitmap);
+				}
+				catch (FileNotFoundException) {
+					#if DEBUG
+					Console.WriteLine("File {0} was not found", icon.Name);
+					#endif
+				}
+			}
 
 			// Get wallpaper data
 			string wallpaperPath = desktop.GetWallpaperPath();
@@ -34,6 +96,7 @@ namespace windows_desktop_grabber
 			{
 				Platform = "windows",
 				Wallpaper = wallpaper,
+				IconImagesPath = ICON_IMAGES_PATH,
 				Icons = icons
 			};
 
