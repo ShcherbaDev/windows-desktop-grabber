@@ -46,7 +46,7 @@ namespace windows_desktop_grabber
 					Console.WriteLine("File {0} is not supported yet", icon.Name);
 					#endif
 
-					break;
+					continue;
 				}
 
 				string iconName = icon.Name;
