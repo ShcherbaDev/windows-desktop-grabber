@@ -49,22 +49,17 @@ namespace windows_desktop_grabber
 					continue;
 				}
 
-				string iconName = icon.Name;
-
-				// Shortcut files requires ".lnk" ending in filename
-				if ((IconTypes)icon.Type == IconTypes.Shortcut)
-				{
-					iconName += ".lnk";
-				}
+				string iconName = icon.FullPath.Split("\\")[^1];
+				string iconImagePath = Path.Combine(iconImagesDirectoryPath, iconName);
 
 				try
 				{
 					Bitmap iconBitmap = ThumbnailProvider.GetThumbnail(
-						Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), iconName),
+						icon.FullPath,
 						ICON_SIZE, ICON_SIZE,
 						ThumbnailOptions.None
 					);
-					ThumbnailProvider.SaveBitmap(iconBitmap, Path.Combine(iconImagesDirectoryPath, iconName));
+					ThumbnailProvider.SaveBitmap(iconBitmap, iconImagePath);
 					ThumbnailProvider.RemoveBitmap(iconBitmap);
 				}
 				catch (FileNotFoundException) {

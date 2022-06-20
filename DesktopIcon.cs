@@ -7,6 +7,9 @@ namespace windows_desktop_grabber
 		[XmlText]
 		public string Name;
 
+		[XmlIgnore]
+		public string FullPath;
+
 		[XmlAttribute("x")]
 		public int X;
 
@@ -25,9 +28,10 @@ namespace windows_desktop_grabber
 		[XmlAttribute("size")]
 		public string Size;
 
-		public DesktopIcon(string name, int x, int y, int type, string size)
+		public DesktopIcon(string name, string fullPath, int x, int y, int type, string size)
 		{
 			this.Name = name;
+			this.FullPath = fullPath;
 			this.X = x;
 			this.Y = y;
 			this.Type = type;

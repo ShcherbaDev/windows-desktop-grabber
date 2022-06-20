@@ -2,17 +2,17 @@
 
 This application gets data from Windows user's desktop and returns as XML.
 
-Currently tested on Windows 10 x64.
+Currently tested on Windows 10 21H2 x64.
 
 Target framework is `net5.0-windows`.
 
 ## Run
 
-Clone the repository and run `dotenv run` in your terminal
+Clone the repository and run `dotnet run` in your terminal
 
 ## Build
 
-`dotenv build -c Release`
+`dotnet build -c Release`
 
 ## Output
 
@@ -23,7 +23,7 @@ Application returns a XML document in the console with the following structure:
   - icon-images-path - relative path to the directory with icon's images (in PNG format)
   - wallpaper - desktop wallpaper and contains the following attributes:
     - path - absolute path to the wallpaper image (is present)
-    - rgb - RGB background when image is not present or is not fitting on screen
+    - rgb - RGB background when image is not present or is not fitting on screen (numbers are divided by space)
     - tile - should wallpaper be tiled or not (1 or 0)
     - style - position parameter which may contain the following values:
       - 0 - center
@@ -37,7 +37,7 @@ Application returns a XML document in the console with the following structure:
 	  - type - enum parameter which may contain the following values:
 	  	- 0 - file
 		- 1 - directory
-		- 2 - shortcut (note: icon's image filename may contain ".lnk" in the end)
+		- 2 - shortcut
 		- 3 - system (e.g. Recycle bin, This PC)
       - size - width and height in pixels separated by comma
 

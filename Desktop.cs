@@ -23,6 +23,22 @@ namespace windows_desktop_grabber
 			return (int)User32.SendMessage(_desktopHandle, ComCtl32.LVM_GETITEMCOUNT, 0, 0);
 		}
 
+		private bool AreIconsHidden()
+		{
+			try
+			{
+				return Convert.ToBoolean(
+					(int)Registry.CurrentUser
+						.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced")
+						.GetValue("HideIcons")
+				);
+			}
+			catch (Exception)
+			{
+				return false;
+			}
+		}
+
 		// Wallpapers
 		private object GetDesktopValue(string propertyName)
 		{
@@ -53,14 +69,25 @@ namespace windows_desktop_grabber
 		// Icons
 		public DesktopIcon[] GetIconsPositions()
 		{
+			var icons = new LinkedList<DesktopIcon>();
+
+			// Return nothing if desktop icons are hidden
+			if (AreIconsHidden())
+			{
+				#if DEBUG
+				Console.WriteLine("Desktop icons are hidden");
+				#endif
+
+				return icons.ToArray();
+			}
+
+			string desktopLocation = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
 			uint desktopProcessId;
 			User32.GetWindowThreadProcessId(_desktopHandle, out desktopProcessId);
 
 			IntPtr vProcess = IntPtr.Zero;
 			IntPtr vPointer = IntPtr.Zero;
-
-			string desktopLocation = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-			var icons = new LinkedList<DesktopIcon>();
 
 			try
 			{
@@ -135,10 +162,14 @@ namespace windows_desktop_grabber
 						Marshal.SizeOf(typeof(Point)), ref vNumberOfBytesRead
 					);
 
+					string fullPath = IconUtilities.GetValidIconPath(name);
+					IconTypes iconType = IconUtilities.GetIconType(fullPath);
+
 					icons.AddLast(new DesktopIcon(
 						name,
+						fullPath,
 						vPoint[0].X, vPoint[0].Y,
-						(int)IconType.GetIconType(desktopLocation + "\\" + name), 
+						(int)iconType, 
 						size
 					));
 				}
