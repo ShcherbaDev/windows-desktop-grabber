@@ -167,7 +167,9 @@ namespace windows_desktop_grabber
 
 					icons.AddLast(new DesktopIcon(
 						name,
-						fullPath,
+						iconType == IconTypes.VirtualFolder // fullPath is invalid for system icons, so the user's desktop path is used instead
+							? IconUtilities.GetFileDesktopPath(name)
+							: fullPath,
 						vPoint[0].X, vPoint[0].Y,
 						(int)iconType, 
 						size

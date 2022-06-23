@@ -8,34 +8,48 @@ namespace windows_desktop_grabber
 		File,
 		Directory,
 		Shortcut,
-		System
+		VirtualFolder
 	}
 
 	internal static class IconUtilities
 	{
+		public static string GetFileDesktopPath(string iconName)
+		{
+			return Path.Combine(
+				Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+				iconName
+			);
+		}
+
 		// Check both local and public desktop folders for checking out an icon
 		public static string GetValidIconPath(string iconName, bool checkCommonDesktop = true)
 		{
-			string foo = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), iconName);
+			string fileDesktopPath = GetFileDesktopPath(iconName);
 
-			if (File.Exists(foo) || Directory.Exists(foo))
+			if (File.Exists(fileDesktopPath) || Directory.Exists(fileDesktopPath))
 			{
-				return foo;
+				return fileDesktopPath;
 			}
-			else if (File.Exists(foo + ".lnk"))
+			else if (File.Exists(fileDesktopPath + ".lnk"))
 			{
-				return foo + ".lnk";
+				return fileDesktopPath + ".lnk";
 			}
 			if (checkCommonDesktop)
 			{
-				return GetValidIconPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonDesktopDirectory), iconName), false);
+				return GetValidIconPath(
+					Path.Combine(
+						Environment.GetFolderPath(Environment.SpecialFolder.CommonDesktopDirectory),
+						iconName
+					),
+					false
+				);
 			}
 
 			// Fallback
-			return foo;
+			return fileDesktopPath;
 		}
 
-		public static IconTypes GetIconType(string path, bool checkCommonDesktop = true)
+		public static IconTypes GetIconType(string path)
 		{
 			if (File.Exists(path))
 			{
@@ -51,7 +65,7 @@ namespace windows_desktop_grabber
 				return IconTypes.Directory;
 			}
 
-			return IconTypes.System;
+			return IconTypes.VirtualFolder; // "This PC", "Recycle Bin" etc.
 		}
 	}
 }

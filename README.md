@@ -12,7 +12,11 @@ Clone the repository and run `dotnet run` in your terminal
 
 ## Build
 
+Run this following command to build:
+
 `dotnet build -c Release`
+
+And then run windows-desktop-grabber.exe in `bin/Release/net5.0-windows`
 
 ## Output
 

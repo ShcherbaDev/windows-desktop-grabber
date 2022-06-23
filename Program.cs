@@ -40,7 +40,7 @@ namespace windows_desktop_grabber
 			foreach (var icon in icons)
 			{
 				// TODO: add support for system icons
-				if ((IconTypes)icon.Type == IconTypes.System)
+				if ((IconTypes)icon.Type == IconTypes.VirtualFolder)
 				{
 					#if DEBUG
 					Console.WriteLine("File {0} is not supported yet", icon.Name);
