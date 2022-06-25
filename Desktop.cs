@@ -67,9 +67,9 @@ namespace windows_desktop_grabber
 		}
 
 		// Icons
-		public DesktopIcon[] GetIconsPositions()
+		public List<DesktopIcon> GetIconsPositions()
 		{
-			var icons = new LinkedList<DesktopIcon>();
+			var icons = new List<DesktopIcon>();
 
 			// Return nothing if desktop icons are hidden
 			if (AreIconsHidden())
@@ -78,7 +78,7 @@ namespace windows_desktop_grabber
 				Console.WriteLine("Desktop icons are hidden");
 				#endif
 
-				return icons.ToArray();
+				return icons;
 			}
 
 			string desktopLocation = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
@@ -112,7 +112,7 @@ namespace windows_desktop_grabber
 					ComCtl32.LVITEM[] vItem = new ComCtl32.LVITEM[1];
 					vItem[0].mask = ComCtl32.LVIF_TEXT;
 					vItem[0].iItem = i;
-					vItem[0].iSubItem = 0; // 2 for file type
+					vItem[0].iSubItem = 0;
 					vItem[0].cchTextMax = vBuffer.Length;
 					vItem[0].pszText = (IntPtr)((int)vPointer + Marshal.SizeOf(typeof(ComCtl32.LVITEM)));
 
@@ -126,57 +126,62 @@ namespace windows_desktop_grabber
 					);
 
 					User32.SendMessage(_desktopHandle, ComCtl32.LVM_GETITEMW, i, vPointer.ToInt32());
-					
-					// Get icon text
-					Kernel32.ReadProcessMemory(
+
+					if (Kernel32.ReadProcessMemory(
 						vProcess,
 						(IntPtr)((int)vPointer + Marshal.SizeOf(typeof(ComCtl32.LVITEM))),
 						Marshal.UnsafeAddrOfPinnedArrayElement(vBuffer, 0),
 						vBuffer.Length,
 						ref vNumberOfBytesRead
-					);
+					) != 0)
+					{
+						// Get icon text
+						string vText = Encoding.Unicode.GetString(vBuffer, 0, (int)vNumberOfBytesRead);
+						string name = vText.Substring(0, vText.IndexOf('\0'));
 
-					string vText = Encoding.Unicode.GetString(vBuffer, 0, (int)vNumberOfBytesRead);
-					string name = vText.Substring(0, vText.IndexOf('\0'));
+						// Get icon width and height
+						// TODO: try to use this: https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-ifolderview2?redirectedfrom=MSDN
+						User32.SendMessage(_desktopHandle, ComCtl32.LVM_GETITEMRECT, i, vPointer.ToInt32());
+						ComCtl32.RECT[] vRect = new ComCtl32.RECT[1];
 
-					// Get icon width and height
-					// TODO: try to use this: https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-ifolderview2?redirectedfrom=MSDN
-					User32.SendMessage(_desktopHandle, ComCtl32.LVM_GETITEMRECT, i, vPointer.ToInt32());
-					ComCtl32.RECT[] vRect = new ComCtl32.RECT[1];
-					Kernel32.ReadProcessMemory(
-						vProcess, vPointer,
-						Marshal.UnsafeAddrOfPinnedArrayElement(vRect, 0),
-						Marshal.SizeOf(typeof(ComCtl32.RECT)), ref vNumberOfBytesRead
-					);
+						if (Kernel32.ReadProcessMemory(
+							vProcess, vPointer,
+							Marshal.UnsafeAddrOfPinnedArrayElement(vRect, 0),
+							Marshal.SizeOf(typeof(ComCtl32.RECT)), ref vNumberOfBytesRead
+						) != 0)
+						{
+							int width = vRect[0].Right - vRect[0].Left;
+							int height = vRect[0].Bottom - vRect[0].Top;
+							string size = width + "," + height;
 
-					int width = vRect[0].Right - vRect[0].Left;
-					int height = vRect[0].Bottom - vRect[0].Top;
-					string size = width + "," + height;
+							// Get icon position
+							User32.SendMessage(_desktopHandle, ComCtl32.LVM_GETITEMPOSITION, i, vPointer.ToInt32());
+							Point[] vPoint = new Point[1];
 
-					// Get icon position
-					User32.SendMessage(_desktopHandle, ComCtl32.LVM_GETITEMPOSITION, i, vPointer.ToInt32());
-					Point[] vPoint = new Point[1];
-					Kernel32.ReadProcessMemory(
-						vProcess, vPointer,
-						Marshal.UnsafeAddrOfPinnedArrayElement(vPoint, 0),
-						Marshal.SizeOf(typeof(Point)), ref vNumberOfBytesRead
-					);
+							if (Kernel32.ReadProcessMemory(
+								vProcess, vPointer,
+								Marshal.UnsafeAddrOfPinnedArrayElement(vPoint, 0),
+								Marshal.SizeOf(typeof(Point)), ref vNumberOfBytesRead
+							) != 0)
+							{
+								string fullPath = IconUtilities.GetValidIconPath(name);
+								IconTypes iconType = IconUtilities.GetIconType(fullPath);
 
-					string fullPath = IconUtilities.GetValidIconPath(name);
-					IconTypes iconType = IconUtilities.GetIconType(fullPath);
-
-					icons.AddLast(new DesktopIcon(
-						name,
-						iconType == IconTypes.VirtualFolder // fullPath is invalid for system icons, so the user's desktop path is used instead
-							? IconUtilities.GetFileDesktopPath(name)
-							: fullPath,
-						vPoint[0].X, vPoint[0].Y,
-						(int)iconType, 
-						size
-					));
+								icons.Add(new DesktopIcon(
+									name,
+									iconType == IconTypes.VirtualFolder // fullPath is invalid for system icons, so the user's desktop path is used instead
+										? IconUtilities.GetFileDesktopPath(name)
+										: fullPath,
+									vPoint[0].X, vPoint[0].Y,
+									(int)iconType, 
+									size
+								));
+							}
+						}
+					}
 				}
 
-				return icons.ToArray();
+				return icons;
 			}
 			finally
 			{

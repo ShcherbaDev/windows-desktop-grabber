@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Linq;
+using System.Collections.Generic;
 using System.IO;
 using System.Drawing;
+using CommandLine;
 
 using static WindowsAPI.Shell32;
 
@@ -12,78 +15,95 @@ namespace windows_desktop_grabber
 		{
 			Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-			const int ICON_SIZE = 256;
-			const string ICON_IMAGES_PATH = "./icons";
+			Parser.Default.ParseArguments<Options>(args)
+				.WithParsed(Run)
+				.WithNotParsed(HandleParseErrors);
+        }
 
-			// Create folder for icon images
-			string iconImagesDirectoryPath = Path.GetFullPath(
-				Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ICON_IMAGES_PATH)
-			);
-			if (!Directory.Exists(iconImagesDirectoryPath))
-			{
-				Directory.CreateDirectory(iconImagesDirectoryPath);
-			}
-			else
-			{
-				foreach (FileInfo file in new DirectoryInfo(iconImagesDirectoryPath).GetFiles())
-				{
-					file.IsReadOnly = false;
-					file.Delete();
-				}
-			}
+		static void Run(Options options)
+		{
+			const int ICON_SIZE = 256;
 
 			// Get desktop data
 			Desktop desktop = new Desktop();
-			DesktopIcon[] icons = desktop.GetIconsPositions();
+			List<DesktopIcon> icons = desktop.GetIconsPositions();
 
-			// Save icon actual images
-			foreach (var icon in icons)
+			if (options.IgnoreVirtualFolders)
 			{
-				// TODO: add support for system icons
-				if ((IconTypes)icon.Type == IconTypes.VirtualFolder)
-				{
-					#if DEBUG
-					Console.WriteLine("File {0} is not supported yet", icon.Name);
-					#endif
+				icons = icons.Where((icon) => icon.Type != (int)IconTypes.VirtualFolder).ToList();
+			}
 
-					continue;
+			if (!options.ExcludeIconImages)
+			{
+				// Create folder for icon images
+				string iconImagesDirectoryPath = Path.GetFullPath(
+					Path.Combine(AppDomain.CurrentDomain.BaseDirectory, options.IconImagesPath)
+				);
+				if (!Directory.Exists(iconImagesDirectoryPath))
+				{
+					Directory.CreateDirectory(iconImagesDirectoryPath);
+				}
+				else
+				{
+					foreach (FileInfo file in new DirectoryInfo(iconImagesDirectoryPath).GetFiles())
+					{
+						file.IsReadOnly = false;
+						file.Delete();
+					}
 				}
 
-				string iconName = icon.FullPath.Split("\\")[^1];
-				string iconImagePath = Path.Combine(iconImagesDirectoryPath, iconName);
-
-				try
+				// Save icon actual images
+				foreach (var icon in icons)
 				{
-					Bitmap iconBitmap = ThumbnailProvider.GetThumbnail(
-						icon.FullPath,
-						ICON_SIZE, ICON_SIZE,
-						ThumbnailOptions.None
-					);
-					ThumbnailProvider.SaveBitmap(iconBitmap, iconImagePath);
-					ThumbnailProvider.RemoveBitmap(iconBitmap);
-				}
-				catch (FileNotFoundException) {
-					#if DEBUG
-					Console.WriteLine("File {0} was not found", icon.Name);
-					#endif
+					// TODO: add support for virtual folders
+					if ((IconTypes)icon.Type == IconTypes.VirtualFolder)
+					{
+						#if DEBUG
+						Console.WriteLine("Virtual folder {0} is not supported yet", icon.Name);
+						#endif
+
+						continue;
+					}
+
+					string iconName = icon.FullPath.Split("\\")[^1];
+					string iconImagePath = Path.Combine(iconImagesDirectoryPath, iconName);
+
+					try
+					{
+						Bitmap iconBitmap = ThumbnailProvider.GetThumbnail(
+							icon.FullPath,
+							ICON_SIZE, ICON_SIZE,
+							ThumbnailOptions.None
+						);
+						ThumbnailProvider.SaveBitmap(iconBitmap, iconImagePath);
+						ThumbnailProvider.RemoveBitmap(iconBitmap);
+					}
+					catch (FileNotFoundException) {
+						#if DEBUG
+						Console.WriteLine("File {0} was not found", icon.Name);
+						#endif
+					}
 				}
 			}
 
 			// Get wallpaper data
-			string wallpaperPath = desktop.GetWallpaperPath();
-			string backgroundColor = desktop.GetWallpaperBackgroundColor();
-			WallpaperStruct wallpaper;
+			WallpaperStruct? wallpaper = null;
+			if (!options.ExcludeWallpaper)
+			{
+				string wallpaperPath = desktop.GetWallpaperPath();
+				string backgroundColor = desktop.GetWallpaperBackgroundColor();
 
-			// If wallpaper is the image
-			if (wallpaperPath != "")
-			{
-				string wallpaperIsTiled = desktop.GetWallpaperTile();
-				string wallpaperStyle = desktop.GetWallpaperStyle();
-				wallpaper = new WallpaperStruct(wallpaperPath, backgroundColor, wallpaperIsTiled, wallpaperStyle);
-			}
-			else
-			{
-				wallpaper = new WallpaperStruct(backgroundColor);
+				// If wallpaper is the image
+				if (wallpaperPath != "")
+				{
+					string wallpaperIsTiled = desktop.GetWallpaperTile();
+					string wallpaperStyle = desktop.GetWallpaperStyle();
+					wallpaper = new WallpaperStruct(wallpaperPath, backgroundColor, wallpaperIsTiled, wallpaperStyle);
+				}
+				else
+				{
+					wallpaper = new WallpaperStruct(backgroundColor);
+				}
 			}
 
 			// Create XML output
@@ -91,12 +111,26 @@ namespace windows_desktop_grabber
 			{
 				Platform = "windows",
 				Wallpaper = wallpaper,
-				IconImagesPath = ICON_IMAGES_PATH,
+				IconImagesPath = !options.ExcludeIconImages ? options.IconImagesPath : null,
 				Icons = icons
 			};
 
 			string xml = XmlManager.GenerateXml(desktopData);
 			Console.WriteLine(xml);
-        }
+		}
+
+		static void HandleParseErrors(IEnumerable<Error> errors)
+		{
+			// Don't count --help and --version as error
+			if (errors.IsHelp() || errors.IsVersion())
+			{
+				return;
+			}
+
+			foreach (var error in errors)
+			{
+				Console.WriteLine(error);
+			}
+		}
     }
 }
