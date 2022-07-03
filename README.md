@@ -6,6 +6,15 @@ Currently tested on Windows 10 21H2 x64.
 
 Target framework is `net5.0-windows`.
 
+## Parameters
+
+| Name                     | Type    | Required | Default   | Description |
+|:-------------------------|:--------|:---------|:----------|:------------|
+| --ignore-virtual-folders | Boolean | No       | false     | Ignore virtual folders like \"My PC\", \"Recycle Bin\" etc. |
+| --exclude-icon-images    | Boolean | No       | false     | Should not add actual image of the icon |
+| --exclude-wallpaper      | Boolean | No       | false     | Should not add wallpaper data to the output |
+| --icon-images-path       | String  | No       | `./icons` | Relative path to the directory with icon's images |
+
 ## Run
 
 Clone the repository and run `dotnet run` in your terminal
@@ -24,7 +33,7 @@ Application returns a XML document in the console with the following structure:
 
 - root
   - platform - current platform (hardcoded to "windows")
-  - icon-images-path - relative path to the directory with icon's images (in PNG format)
+  - icon-images-path - relative path to the directory with icon's images
   - wallpaper - desktop wallpaper and contains the following attributes:
     - path - absolute path to the wallpaper image (is present)
     - rgb - RGB background when image is not present or is not fitting on screen (numbers are divided by space)
