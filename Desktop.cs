@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Drawing;
@@ -67,7 +66,7 @@ namespace windows_desktop_grabber
 		}
 
 		// Icons
-		public List<DesktopIcon> GetIconsPositions()
+		public List<DesktopIcon> GetIcons(bool generateImageFilenames = true)
 		{
 			var icons = new List<DesktopIcon>();
 
@@ -140,7 +139,6 @@ namespace windows_desktop_grabber
 						string name = vText.Substring(0, vText.IndexOf('\0'));
 
 						// Get icon width and height
-						// TODO: try to use this: https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-ifolderview2?redirectedfrom=MSDN
 						User32.SendMessage(_desktopHandle, ComCtl32.LVM_GETITEMRECT, i, vPointer.ToInt32());
 						ComCtl32.RECT[] vRect = new ComCtl32.RECT[1];
 
@@ -167,11 +165,18 @@ namespace windows_desktop_grabber
 								string fullPath = IconUtilities.GetValidIconPath(name);
 								IconTypes iconType = IconUtilities.GetIconType(fullPath);
 
+								string iconImageFilename = null;
+								if (generateImageFilenames)
+								{
+									iconImageFilename = Guid.NewGuid().ToString();
+								}
+
 								icons.Add(new DesktopIcon(
 									name,
 									iconType == IconTypes.VirtualFolder // fullPath is invalid for system icons, so the user's desktop path is used instead
 										? IconUtilities.GetFileDesktopPath(name)
 										: fullPath,
+									iconImageFilename,
 									vPoint[0].X, vPoint[0].Y,
 									(int)iconType, 
 									size

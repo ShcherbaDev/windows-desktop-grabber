@@ -26,7 +26,7 @@ namespace windows_desktop_grabber
 
 			// Get desktop data
 			Desktop desktop = new Desktop();
-			List<DesktopIcon> icons = desktop.GetIconsPositions();
+			List<DesktopIcon> icons = desktop.GetIcons(!options.ExcludeIconImages);
 
 			if (options.IgnoreVirtualFolders)
 			{
@@ -65,8 +65,7 @@ namespace windows_desktop_grabber
 						continue;
 					}
 
-					string iconName = icon.FullPath.Split("\\")[^1];
-					string iconImagePath = Path.Combine(iconImagesDirectoryPath, iconName);
+					string iconImagePath = Path.Combine(iconImagesDirectoryPath, icon.ImageName);
 
 					try
 					{

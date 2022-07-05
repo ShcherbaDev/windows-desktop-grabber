@@ -53,6 +53,7 @@ Application returns a XML document in the console with the following structure:
 		- 2 - shortcut
 		- 3 - system (e.g. Recycle bin, This PC)
       - size - width and height in pixels separated by comma
+	  - image-filename - icon's actual image filename without extension (hidden if parameter `--exclude-icon-images` is enabled)
 
 Sample output looks like this:
 
@@ -74,4 +75,3 @@ Sample output looks like this:
 ## TODO
 
 - Get system images from icons like "Recycle Bin" or "This PC"
-- Get more accurate icon sizes

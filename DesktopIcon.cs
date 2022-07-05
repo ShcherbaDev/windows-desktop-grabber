@@ -28,14 +28,23 @@ namespace windows_desktop_grabber
 		[XmlAttribute("size")]
 		public string Size;
 
-		public DesktopIcon(string name, string fullPath, int x, int y, int type, string size)
+		/// <summary>
+		/// Icon's actual image filename without extension
+		/// </summary>
+		[XmlAttribute("image-filename")]
+		#nullable enable
+		public string? ImageName;
+
+		public DesktopIcon(string name, string? fullPath, string imageName, int x, int y, int type, string size)
 		{
 			this.Name = name;
 			this.FullPath = fullPath;
+			this.ImageName = imageName;
 			this.X = x;
 			this.Y = y;
 			this.Type = type;
 			this.Size = size;
 		}
+		#nullable disable
 	}
 }
