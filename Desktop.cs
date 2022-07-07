@@ -166,7 +166,7 @@ namespace windows_desktop_grabber
 								IconTypes iconType = IconUtilities.GetIconType(fullPath);
 
 								string iconImageFilename = null;
-								if (generateImageFilenames)
+								if (generateImageFilenames && iconType != IconTypes.VirtualFolder)
 								{
 									iconImageFilename = Guid.NewGuid().ToString();
 								}
