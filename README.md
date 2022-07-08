@@ -64,13 +64,15 @@ Sample output looks like this:
   <icon-images-path>./icons</icon-images-path>
   <wallpaper path="c:\windows\web\wallpaper\theme1\img13" tile="0" style="10" />
   <icons>
-    <icon x="17" y="2" type="3" size="95,65">This PC</icon>   
-    <icon x="17" y="127" type="2" size="95,65">Firefox</icon>
-    <icon x="1632" y="502" type="0" size="95,65">Random file.txt</icon>
-    <icon x="1822" y="877" size="95,65">Recycle Bin</icon>
+    <icon x="17" y="2" type="3" size="95,65" image-filename="370b02a0-63f0-4642-b246-fb76ca3324e4">This PC</icon>   
+    <icon x="17" y="127" type="2" size="95,65" image-filename="d25a3ed3-e4c9-4c9b-a8b1-3cf6d3dc7851">Firefox</icon>
+    <icon x="1632" y="502" type="0" size="95,65" image-filename="346e79b3-43a2-42a5-9365-875b8e7ff834">Random file.txt</icon>
+    <icon x="1822" y="877" type="3" size="95,65">Trash Bin</icon>
   </icons>
 </root>
 ```
+
+If the user's desktop contains any shortcuts and the `--exclude-icon-images` parameter is disabled then the `shortcut_overlay.png` file will be created. This is a system shortcut arrow overlay image.
 
 ## TODO
 

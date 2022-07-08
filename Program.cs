@@ -52,6 +52,13 @@ namespace windows_desktop_grabber
 					}
 				}
 
+				if (icons.Any(icon => icon.Type == (int)IconTypes.Shortcut))
+				{
+					Bitmap shortcutArrowBitmap = ThumbnailProvider.GetShortcutArrowOverlayBitmap();
+					ThumbnailProvider.SaveBitmap(shortcutArrowBitmap, Path.Combine(iconImagesDirectoryPath, "shortcut_overlay"));
+					ThumbnailProvider.RemoveBitmap(shortcutArrowBitmap);
+				}
+
 				// Save icon actual images
 				foreach (var icon in icons)
 				{

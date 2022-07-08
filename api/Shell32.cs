@@ -5,6 +5,9 @@ namespace WindowsAPI
 {
 	internal static class Shell32
 	{
+		public const string IID_IImageList = "46EB5926-582E-4017-9FDF-E8998DAA0950";
+		public const string IID_IImageList2 = "192B9D83-50FC-457B-90A0-2B82A8B5DAE1";
+
 		[Flags]
 		public enum ThumbnailOptions
 		{
@@ -14,6 +17,15 @@ namespace WindowsAPI
 			IconOnly = 0x04,
 			ThumbnailOnly = 0x08,
 			InCacheOnly = 0x10
+		}
+
+		public enum SHIL
+		{
+			SHIL_LARGE = 0x0,
+			SHIL_SMALL = 0x1,
+			SHIL_EXTRALARGE = 0x2,
+			SHIL_SYSSMALL = 0x3,
+			SHIL_JUMBO = 0x4
 		}
 
 		public enum SIGDN : uint
@@ -109,6 +121,13 @@ namespace WindowsAPI
 			IntPtr pbc,
 			ref Guid riid,
 			[MarshalAs(UnmanagedType.Interface)] out IShellItem shellItem
+		);
+
+		[DllImport("shell32.dll", EntryPoint = "#727")]
+		internal static extern int SHGetImageList(
+			int iImageList,
+			ref Guid riid,
+			ref ComCtl32.IImageList ppv
 		);
 	}
 }

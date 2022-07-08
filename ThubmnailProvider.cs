@@ -6,6 +6,7 @@ using System.IO;
 
 using static WindowsAPI.Gdi32;
 using static WindowsAPI.Shell32;
+using static WindowsAPI.ComCtl32;
 
 namespace windows_desktop_grabber
 {
@@ -16,6 +17,27 @@ namespace windows_desktop_grabber
 	internal static class ThumbnailProvider
 	{
 		private const string IShellItem2Guid = "7E9FB0D3-919F-4307-AB2E-9B1860310C93";
+
+		public static Bitmap GetShortcutArrowOverlayBitmap()
+		{
+			Guid iidImageList = new Guid(IID_IImageList2);
+			IImageList imageList = null;
+			IntPtr icon = IntPtr.Zero;
+			SHGetImageList((int)SHIL.SHIL_JUMBO, ref iidImageList, ref imageList);
+			
+			if (imageList == null)
+			{
+				return null;
+			}
+
+			imageList.GetIcon(
+				29, // Index of the shortcut arrow overlay
+				(int)ILD_FLAGS.ILD_NORMAL | (int)ILD_FLAGS.ILD_TRANSPARENT,
+				ref icon
+			);
+
+			return Bitmap.FromHicon(icon);
+		}
 
 		public static Bitmap GetThumbnail(string fileName, int width, int height, ThumbnailOptions options)
 		{
