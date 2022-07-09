@@ -18,13 +18,13 @@ namespace windows_desktop_grabber
 	{
 		private const string IShellItem2Guid = "7E9FB0D3-919F-4307-AB2E-9B1860310C93";
 
-		public static Bitmap GetShortcutArrowOverlayBitmap()
+		public static Bitmap GetShortcutArrowOverlayBitmap(SHIL size)
 		{
 			Guid iidImageList = new Guid(IID_IImageList2);
 			IImageList imageList = null;
 			IntPtr icon = IntPtr.Zero;
-			SHGetImageList((int)SHIL.SHIL_JUMBO, ref iidImageList, ref imageList);
-			
+			SHGetImageList((int)size, ref iidImageList, ref imageList);
+
 			if (imageList == null)
 			{
 				return null;
