@@ -7,6 +7,7 @@ using System.IO;
 using static WindowsAPI.Gdi32;
 using static WindowsAPI.Shell32;
 using static WindowsAPI.ComCtl32;
+using static WindowsAPI.User32;
 
 namespace windows_desktop_grabber
 {
@@ -22,7 +23,7 @@ namespace windows_desktop_grabber
 		{
 			Guid iidImageList = new Guid(IID_IImageList2);
 			IImageList imageList = null;
-			IntPtr icon = IntPtr.Zero;
+			IntPtr hIcon = IntPtr.Zero;
 			SHGetImageList((int)size, ref iidImageList, ref imageList);
 
 			if (imageList == null)
@@ -32,11 +33,14 @@ namespace windows_desktop_grabber
 
 			imageList.GetIcon(
 				29, // Index of the shortcut arrow overlay
-				(int)ILD_FLAGS.ILD_NORMAL | (int)ILD_FLAGS.ILD_TRANSPARENT,
-				ref icon
+				(int)ILD_FLAGS.ILD_TRANSPARENT,
+				ref hIcon
 			);
 
-			return Bitmap.FromHicon(icon);
+			Icon icon = Icon.FromHandle(hIcon);
+			Bitmap iconBitmap = icon.ToBitmap();
+			DestroyIcon(hIcon);
+			return iconBitmap;
 		}
 
 		public static Bitmap GetThumbnail(string fileName, int width, int height, ThumbnailOptions options)

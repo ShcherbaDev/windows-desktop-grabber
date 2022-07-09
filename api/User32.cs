@@ -14,6 +14,9 @@ namespace WindowsAPI
 			SysListView32
 		}
 
+		[DllImport("user32.dll", SetLastError = true)]
+		public static extern bool DestroyIcon(IntPtr hIcon);
+
 		[DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
 		public static extern IntPtr FindWindowEx(IntPtr hwndParent, IntPtr hwndChildAfter, string lpszClass, string lpszWindow);
 
